@@ -37,20 +37,19 @@ def create_app(test_config=None):
     return response
     
 #Create an endpoint to handle GET requests for all available categories.
-  @app.route('/categories')
+  @app.route('/categories', methods=['GET'])
   def get_categories():
-    categories = Category.query.order_by(Category.type).all()
-    total_categories = len(categories)
-    formatted_categories = [category.format() for category in categories]
-
-    if total_categories == 0:
-      abort(404)
+    categories = Category.query.all()
+    category_list = {
+      category.id: category.type for category in categories
+    }
 
     return jsonify({
       'success': True,
-      'categories': formatted_categories,
-      'total_categories': total_categories
+      'categories': category_list,
+      'status': 200  # success
     })
+
 
 # Create an endpoint to handle GET requests for questions, including pagination (every 10 questions). 
   @app.route('/questions', methods=['GET'])
@@ -76,6 +75,7 @@ def create_app(test_config=None):
       'message': 'Successfully deleted'
     })
 
+# Create an endpoint to POST a new question
   @app.route('/questions', methods=['POST'])
   def create_question():
     body = request.get_json()
@@ -95,37 +95,58 @@ def create_app(test_config=None):
         'success': True,
         'total_questions': len(selection)
       })
-
     except:
       abort(422)
 
- 
+# Create a POST endpoint to get questions based on a search term.
+  # @app.route('/question/search', methods=['POST'])
+  # def search_question():
+  #   search = data.get('searchTerm')
+  #   questions = Question.query.filter(Question.question.ilike('%{}%'.format(search))).all()
 
-  # @app.route('/questions', methods=['POST'])
-  # def create_question():
-  #   new_question = request.json.get('question')
-  #   new_category = request.json.get('category')
-  #   new_answer = request.json.get('answer')
-  #   new_difficulty = request.json.get('difficulty')
-  #   try:
-  #     question = Question(question = new_question, answer=new_answer, difficulty=new_difficulty, category=new_category)
-  #     question.insert()
+  #   paginated_questions = paginate(request, questions)
     
   #   return jsonify({
-  #     'success': True
+  #     'success': True,
+  #     'status': 200,
+  #     'questions': paginated_questions,
+  #     'total_questions': len(paginated_questions)
   #   })
 
+  @app.route('/questions/search', methods=['POST'])
+  def search_questions():
+    if not request.method == 'POST':
+      abort(405)
+      
+      data = request.get_json()
+      search_term = data.get('searchTerm')
+      if not search_term:
+        abort(422)
+        try:
+          questions = Question.query.filter(
+          Question.question.ilike('%{}%'.format(search_term))).all()
+          if not questions:
+            abort(422)
+            paginated_questions = paginate(request, questions)
+            return jsonify({
+              'success': True,
+              'status': 200,
+              'questions': paginated_questions,
+              'total_questions':  len(paginated_questions)
+            })
+        except:
+            abort(422)
 
-  '''
-  #TODO: 
-  Create an endpoint to POST a new question, 
-  which will require the question and answer text, 
-  category, and difficulty score.
+  
 
-  TEST: When you submit a question on the "Add" tab, 
-  the form will clear and the question will appear at the end of the last page
-  of the questions list in the "List" tab.  
-  '''
+
+
+
+
+
+
+
+
 
   '''
   #TODO: 
@@ -160,11 +181,6 @@ def create_app(test_config=None):
   and shown whether they were correct or not. 
   '''
 
-  '''
-#TODO: 
-  Create error handlers for all expected errors 
-  including 404 and 422. 
-  '''
   @app.errorhandler(404)
   def not_found(error):
     return jsonify({
