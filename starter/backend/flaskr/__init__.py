@@ -99,55 +99,26 @@ def create_app(test_config=None):
       abort(422)
 
 # Create a POST endpoint to get questions based on a search term.
-  # @app.route('/question/search', methods=['POST'])
-  # def search_question():
-  #   search = data.get('searchTerm')
-  #   questions = Question.query.filter(Question.question.ilike('%{}%'.format(search))).all()
-
-  #   paginated_questions = paginate(request, questions)
-    
-  #   return jsonify({
-  #     'success': True,
-  #     'status': 200,
-  #     'questions': paginated_questions,
-  #     'total_questions': len(paginated_questions)
-  #   })
-
   @app.route('/questions/search', methods=['POST'])
-  def search_questions():
-    if not request.method == 'POST':
-      abort(405)
-      
-      data = request.get_json()
-      search_term = data.get('searchTerm')
-      if not search_term:
-        abort(422)
-        try:
-          questions = Question.query.filter(
-          Question.question.ilike('%{}%'.format(search_term))).all()
-          if not questions:
-            abort(422)
-            paginated_questions = paginate(request, questions)
-            return jsonify({
-              'success': True,
-              'status': 200,
-              'questions': paginated_questions,
-              'total_questions':  len(paginated_questions)
-            })
-        except:
-            abort(422)
+  def search_question():
+    try:
+      body = request.get_json()
+      search = body.get('searchTerm', '')
+      questions = Question.query.filter(Question.question.ilike(f'%{search}%')).all()
+      formatted_question = [question.format() for question in questions]
 
+      if len(formatted_question) == 0:
+        abort(400)
+    
+      return jsonify({
+        'success': True,
+        'questions': formatted_question,
+        'total_questions': len(formatted_question)
+      })
+    except:
+      abort(422)
+ 
   
-
-
-
-
-
-
-
-
-
-
   '''
   #TODO: 
   Create a POST endpoint to get questions based on a search term. 
