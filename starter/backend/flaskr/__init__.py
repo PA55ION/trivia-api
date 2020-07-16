@@ -134,24 +134,32 @@ def create_app(test_config=None):
       'total_questions': len(questions),
     })
 
-
-  # TEST: In the "List" tab / main screen, clicking on one of the 
-  # categories in the left column will cause only questions of that 
-  # category to be shown. 
+# Create a POST endpoint to get questions to play the quiz. 
+  @app.route('/quizzes', methods=['POST'])
+  def play_quiz():
+    body = request.get_json()
+    quiz_category = body.get('quiz_category', None).get('id')
+    previous_questions = body.get('previous_questions', None)
   
+    if quiz_category == 0:  
+      all_questions = Question.query.all()
+    else:
+      all_questions = Question.query.filter(Question.category == category).all()
 
+    if len(all_questions) == 0:
+      abort(404)
 
-  '''
-  #TODO: 
-  Create a POST endpoint to get questions to play the quiz. 
-  This endpoint should take category and previous question parameters 
-  and return a random questions within the given category, 
-  if provided, and that is not one of the previous questions. 
-
-  TEST: In the "Play" tab, after a user selects "All" or a category,
-  one question at a time is displayed, the user is allowed to answer
-  and shown whether they were correct or not. 
-  '''
+    random_question = [question.format() for question in all_questions if question.id not in previous_questions]
+    question = random.choice(random_question)
+    try:
+      while len(random_question) > len(previous_questions):
+        if question.get(id) not in previous_questions:
+          return jsonify({
+            'success': True,
+            'question': question
+          }), 200
+    except:
+      abort(404)
 
   @app.errorhandler(404)
   def not_found(error):
@@ -196,4 +204,4 @@ def create_app(test_config=None):
 
   return app
 
-    
+

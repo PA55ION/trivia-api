@@ -28,14 +28,6 @@ class QuizView extends Component {
         this.setState({ categories: result.categories })
         return;
       },
-    //   let categories = result.categories;
-    //   let obj_category = {}
-    //   for (let i = 0; i < categories.length; i++) {
-    //       obj_category[categories[i].id] = categories[i].type;
-    //   }
-    //   this.setState({ categories: obj_category })
-    //   return;
-    // },
       error: (error) => {
         alert('Unable to load categories. Please try your request again')
         return;
