@@ -58,6 +58,7 @@ def create_app(test_config=None):
         paginated_questions = paginate_questions(request, questions_list)
         if len(paginated_questions) == 0:
             abort(404)
+    
         return jsonify({
             'success': True,
             'questions': paginated_questions,
