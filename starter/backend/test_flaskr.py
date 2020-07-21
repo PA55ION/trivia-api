@@ -77,7 +77,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
         self.assertTrue(data['categories'])
     
-
     def test_404_sent_requesting_beyond_valid_page(self):
         res = self.client().get('/questions?page=1000')
         data = json.loads(res.data)
@@ -86,35 +85,20 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
 
     def test_delete_question(self):
-        res = self.client().delete('/questions/12')
+        res = self.client().delete('/questions/14')
         data = json.loads(res.data)
 
-        question = Question.query.get(12)
-
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(data['success'], False)
-        self.assertTrue(data['deleted'], 12)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['deleted'], 14)
         self.assertTrue(data['message'])
         
-       
     def test_404_delete_question(self):
         res = self.client().delete('/questions/1000')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
-    
-    def test_422_delete_question(self):
-        res = self.client().get('/questions/100')
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 422)
-        self.assertEqual(data['success'], False)
-
-
-
-
-        
             
     def test_create_question(self):
         res = self.client().post('/questions', json=self.new_question)
@@ -161,7 +145,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
         self.assertTrue(data['message'])
-        
         
     def test_quizzes(self):
         response = self.client().post('/quizzes', 
