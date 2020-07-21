@@ -28,13 +28,13 @@ The frontend app was built using create-react-app. In order to run the app in de
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser. The page will reload if you make edits.<br>
 
-```bash
+```cd starter/frontend
 npm start
 ```
 
 ## Request Formatting
 
-The frontend should be fairly straightforward and disgestible. You'll primarily work within the ```components``` folder in order to edit the endpoints utilized by the components. While working on your backend request handling and response formatting, you can reference the frontend to view how it parses the responses. 
+The frontend should be fairly straightforward and digestible. You'll primarily work within the ```components``` folder in order to edit the endpoints utilized by the components. While working on your backend request handling and response formatting, you can reference the frontend to view how it parses the responses. 
 
 After you complete your endpoints, ensure you return to and update the frontend to make request and handle responses appropriately: 
 - Correct endpoints
