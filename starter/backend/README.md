@@ -88,7 +88,37 @@ GET '/categories'
 '5' : "Entertainment",
 '6' : "Sports"}
 
-Errors
+GET '/questions'
+- Fetch a list of questions 
+- Request Argument: None
+- Questions are returned as JSON object in the following format:
+{
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "questions": [
+    {
+      "answer": "Maya Angelou",
+      "category": 4,
+      "difficulty": 2,
+      "id": 5,
+      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    },
+
+ POST '/questions'
+ - Create a new question from the frontend and send it to the backend. 
+ - The new question that recently created should be store in database.
+
+ DELETE '/questions/<int:question_id>'
+ - User should be able to deleted unwanted question by clicking the trash icon the UI need to be updated right away.
+ - If check in the database the question that the user just deleted should also be updated in the database.
+
+Errors Handling
 HTTP status code summary
 200 - OK Everything worked as expected
 400 - Bad Request
@@ -96,13 +126,12 @@ HTTP status code summary
 405 - Method Not Allowed
 422 - Unprocessable
 500 - Internal Server Error
-
 ```
-
 
 ## Testing
 To run the tests, run
 ```
+cd starter/backend&&
 dropdb trivia_test
 createdb trivia_test
 psql trivia_test < trivia.psql
