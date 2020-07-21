@@ -117,6 +117,12 @@ GET '/questions'
  DELETE '/questions/<int:question_id>'
  - User should be able to deleted unwanted question by clicking the trash icon the UI need to be updated right away.
  - If check in the database the question that the user just deleted should also be updated in the database.
+ - Successful response returned as JSON object in the following format.
+    {
+        "deleted": 4,
+        "message": "Successfully deleted",
+        "success": true
+    }
 
 Errors Handling
 HTTP status code summary
