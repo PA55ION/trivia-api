@@ -69,12 +69,16 @@ def create_app(test_config=None):
 # Create an endpoint to DELETE question using a question ID
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
-    question = Question.query.get(question_id)
-    question.delete()
-    return jsonify({
-      'success': True,
-      'message': 'Successfully deleted'
-    })
+    try:
+      question = Question.query.get(question_id)
+      question.delete()
+      return jsonify({
+        'success': True,
+        'deleted': question.id,
+        'message': 'Successfully deleted'
+      }), 200
+    except:
+      abort(404)
 
 # Create an endpoint to POST a new question
   @app.route('/questions', methods=['POST'])
@@ -127,7 +131,7 @@ def create_app(test_config=None):
     if len(questions) == 0:
       abort(404)
 
-    selection = paginate_questions(request,questions)
+    selection = paginate_questions(request, questions)
 
     return jsonify({
       'success': True,
@@ -136,31 +140,38 @@ def create_app(test_config=None):
     })
 
 # Create a POST endpoint to get questions to play the quiz. 
-  @app.route('/quizzes', methods=['POST'])
-  def play_quiz():
-    body = request.get_json()
-    quiz_category = body.get('quiz_category', None).get('id')
-    previous_questions = body.get('previous_questions', None)
-  
-    if quiz_category == 0:  
-      all_questions = Question.query.all()
-    else:
-      all_questions = Question.query.filter(Question.category == category).all()
-
-    if len(all_questions) == 0:
-      abort(404)
-
-    random_question = [question.format() for question in all_questions if question.id not in previous_questions]
-    question = random.choice(random_question)
+  @app.route('/quizzes', methods=['POST']) 
+  def post_quizzes():
     try:
-      while len(random_question) > len(previous_questions):
-        if question.get(id) not in previous_questions:
-          return jsonify({
-            'success': True,
-            'question': question
-          }), 200
+      data = request.get_json()
+    
+      category_id = int(data['quiz_category']['id'])
+      category = Category.query.get(category_id)
+      previous_questions = data['previous_questions']
+      if not category == None:  
+        if 'previous_questions' in data and len(previous_questions) > 0:
+          questions = Question.query.filter(
+            Question.id.notin_(previous_questions),
+            Question.category == category.id
+            ).all()  
+        else:
+          questions = Question.query.filter(Question.category == category.id).all()
+      else:
+        if 'previous_questions' in data and len(previous_questions) > 0:
+          questions = Question.query.filter(Question.id.notin_(previous_questions)).all()  
+        else:
+          questions = Question.query.all()
+      max = len(questions) - 1
+      if max > 0:
+        question = questions[random.randint(0, max)].format()
+      else:
+        question = False
+      return jsonify({
+        'success': True,
+        'question': question
+      })
     except:
-      abort(404)
+      abort(500, "An error occurred while trying to load the next question")
 
   @app.errorhandler(404)
   def not_found(error):
@@ -175,7 +186,7 @@ def create_app(test_config=None):
     return jsonify({
       'success': False,
       'error': 400,
-      'messgae': 'Bad Request'
+      'message': 'Bad Request'
     }), 400
 
   @app.errorhandler(405)
